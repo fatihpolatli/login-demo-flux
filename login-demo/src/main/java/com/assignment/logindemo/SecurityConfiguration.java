@@ -5,7 +5,6 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -20,12 +19,16 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import com.assignment.logindemo.repository.UserRepository;
 
+
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfiguration {
 
 	@Autowired
 	DataSource dataSource;
+	
+	@Autowired
+	UserRepository users;
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
@@ -34,8 +37,14 @@ public class SecurityConfiguration {
 
 	@Bean
 	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {
-		return http.authorizeExchange()
-				.anyExchange().authenticated().and().build();
+		
+		http.csrf().disable();
+		
+		return http				
+				.authorizeExchange()
+				.anyExchange().authenticated().and().formLogin()
+			      .and().build();
+		
 	}
 
 	@Bean
